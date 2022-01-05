@@ -1,16 +1,19 @@
 import Image from "next/image";
+import Link from "next/link";
 import useSWR from "swr";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
+const kFormatter = (number) => {
+  return Intl.NumberFormat("en", { notation: "compact" }).format(number);
+};
+
 function User({ username }) {
   const { data } = useSWR(`/api/user?username=${username}`, fetcher);
 
-  console.log(data);
-
   return (
     <div className=" flex flex-col font-mono">
-      <div className="w-[500px] h-[500px] bg-red-500 relative grid self-center rounded-full">
+      <div className="w-[500px] h-[500px]  relative grid self-center rounded-full">
         <div className="w-[400px] h-[400px] bg-green-500 place-self-center rounded-full relative">
           <Image
             src={
@@ -22,11 +25,13 @@ function User({ username }) {
             className="rounded-full"
           />
         </div>
-        <div className="w-full flex bg-blue-500 absolute bottom-2 col-auto items-end justify-center space-x-8">
+        <div className="w-full flex  absolute bottom-2 col-auto items-end justify-center space-x-8">
           {data?.user.repositories.nodes.map((repo) => (
-            <div className="w-16 h-16 bg-red-600 rounded-full text-center items-center">
-              {/* {repo.name} {repo.stargazerCount || "0"} */}
-            </div>
+            <Link href={repo.url} replace key={repo.url}>
+              <a className="w-16 h-16 bg-gray-600 rounded-full text-center items-center cursor-pointer justify-center flex flex-col text-white font-bold text-lg">
+                {kFormatter(repo.stargazerCount) || "0"} <span>⭐️</span>
+              </a>
+            </Link>
           ))}
         </div>
       </div>
@@ -43,17 +48,17 @@ function User({ username }) {
         <div className="bg-gray-700 text-center py-4 justify-center items-center space-x-16 w-full text-white uppercase text-4xl flex">
           <div>
             <h5>Repos</h5>
-            <p>{data?.user.repositories.totalCount || "0"}</p>
+            <p>{kFormatter(data?.user.repositories.totalCount) || "0"}</p>
           </div>
 
           <div>
             <h5>Followers</h5>
-            <p>{data?.user.followers.totalCount || "0"}</p>
+            <p>{kFormatter(data?.user.followers.totalCount) || "0"}</p>
           </div>
 
           <div>
             <h5>Following</h5>
-            <p>{data?.user.following.totalCount || "0"}</p>
+            <p>{kFormatter(data?.user.following.totalCount) || "0"}</p>
           </div>
         </div>
       </div>
